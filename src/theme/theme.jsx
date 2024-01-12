@@ -3,9 +3,10 @@ import { ThemeProvider as MUIThemeProvider } from "@mui/material/styles";
 import palette from "./palette";
 import breakpoints from "./breakpoints";
 import typography from "./typography";
+import { useSettings } from "../context/SettingsContext";
 
 const ThemeProvider = ({ children }) => {
-  const themeMode = "light";
+  const { themeMode } = useSettings();
 
   const themeOptions = {
     breakpoints,
