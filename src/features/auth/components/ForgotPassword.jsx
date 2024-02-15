@@ -6,8 +6,16 @@ import {
   styled,
   useTheme,
 } from "@mui/material";
-import React from "react";
+import React, { useEffect } from "react";
 import { useForm } from "react-hook-form";
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import {
+  forgotPasswordAsync,
+  selectAuthUser,
+  selectErrors,
+} from "../authSlice";
+import { toast } from "react-toastify";
 
 //styled components
 const StyledInput = styled(InputBase)`
@@ -18,6 +26,16 @@ const StyledInput = styled(InputBase)`
 
 const ForgotPassword = () => {
   const theme = useTheme();
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const authUser = useSelector(selectAuthUser);
+  const error = useSelector(selectErrors);
+
+  useEffect(() => {
+    if (authUser.verified) {
+      navigate("/");
+    }
+  }, [dispatch, authUser]);
 
   const {
     register,
@@ -43,7 +61,9 @@ const ForgotPassword = () => {
       <form
         noValidate
         onSubmit={handleSubmit((data) => {
-          console.log(data);
+          dispatch(forgotPasswordAsync(data));
+          toast.success("reset link sent on email");
+          navigate("/auth/login");
         })}
       >
         <Stack spacing={3}>
@@ -69,6 +89,16 @@ const ForgotPassword = () => {
           </Stack>
 
           <Stack>
+            {error && (
+              <Typography
+                variant="caption"
+                color="error.main"
+                textAlign={"center"}
+                gutterBottom
+              >
+                {error}
+              </Typography>
+            )}
             <Button
               variant="contained"
               color="error"

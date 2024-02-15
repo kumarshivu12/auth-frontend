@@ -1,11 +1,19 @@
 import { Button, InputBase, Stack, Typography, useTheme } from "@mui/material";
 import React, { useEffect, useRef, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { selectAuthUser, selectErrors, verifyOTPasync } from "../authSlice";
 
 const VerifyOTP = () => {
-  const theme = useTheme();
   const length = 6;
+  const theme = useTheme();
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [inputs, setInputs] = useState(Array(length).fill(""));
   const inputRefs = Array.from({ length }, () => useRef());
+  const authUser = useSelector(selectAuthUser);
+  const error = useSelector(selectErrors);
 
   const toggleFocus = (idx) => {
     inputRefs[idx].current.focus();
@@ -54,14 +62,20 @@ const VerifyOTP = () => {
     e.preventDefault();
     let otp = "";
     inputs.forEach((el) => (otp += el));
-    console.log(otp);
     setInputs(inputs.map((el, idx) => ""));
     inputRefs[0].current.focus();
+    dispatch(verifyOTPasync({ email: searchParams.get("email"), otp }));
   };
 
   useEffect(() => {
     inputRefs[0].current.focus();
   }, []);
+
+  useEffect(() => {
+    if (authUser?.verified) {
+      navigate("/");
+    }
+  }, [dispatch, authUser]);
 
   return (
     <Stack
@@ -114,8 +128,20 @@ const VerifyOTP = () => {
               />
             ))}
           </Stack>
-
+          <Stack alignSelf={"flex-end"}>
+            <Button variant="text">resend otp</Button>
+          </Stack>
           <Stack>
+            {error && (
+              <Typography
+                variant="caption"
+                color="error.main"
+                textAlign={"center"}
+                gutterBottom
+              >
+                {error}
+              </Typography>
+            )}
             <Button
               variant="contained"
               color="info"

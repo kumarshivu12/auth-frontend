@@ -8,9 +8,11 @@ import {
   useTheme,
 } from "@mui/material";
 import { Eye, EyeClosed } from "phosphor-react";
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
+import { useDispatch, useSelector } from "react-redux";
+import { loginUserAsync, selectAuthUser, selectErrors } from "../authSlice";
 
 //styled components
 const StyledInput = styled(InputBase)`
@@ -20,8 +22,18 @@ const StyledInput = styled(InputBase)`
 `;
 
 const Login = () => {
-  const [show, setShow] = useState(false);
   const theme = useTheme();
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const [show, setShow] = useState(false);
+  const authUser = useSelector(selectAuthUser);
+  const error = useSelector(selectErrors);
+
+  useEffect(() => {
+    if (authUser?.verified) {
+      navigate("/");
+    }
+  }, [dispatch, authUser]);
 
   const {
     register,
@@ -47,7 +59,7 @@ const Login = () => {
       <form
         noValidate
         onSubmit={handleSubmit((data) => {
-          console.log(data);
+          dispatch(loginUserAsync(data));
         })}
       >
         <Stack spacing={3}>
@@ -123,6 +135,16 @@ const Login = () => {
             )}
           </Stack>
           <Stack>
+            {error && (
+              <Typography
+                variant="caption"
+                color="error.main"
+                textAlign={"center"}
+                gutterBottom
+              >
+                {error}
+              </Typography>
+            )}
             <Button
               variant="contained"
               color="primary"

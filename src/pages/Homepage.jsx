@@ -1,8 +1,33 @@
 import React from "react";
 import Wrapper from "../features/Wrapper";
+import { Navigate, Outlet } from "react-router-dom";
+import { Fab, Stack } from "@mui/material";
+import { useSettings } from "../context/SettingsContext";
+import { Moon, Sun } from "phosphor-react";
 
-const Homepage = () => {
-  return <Wrapper>HomePage</Wrapper>;
+const HomePage = () => {
+  const { themeMode, onToggleMode } = useSettings();
+  return (
+    <Wrapper>
+      <Stack
+        width={"100%"}
+        height={"100%"}
+        justifyContent={"center"}
+        alignItems={"center"}
+      >
+        <Fab
+          sx={{ position: "absolute", bottom: 20, right: 20 }}
+          color="primary"
+          aria-label="add"
+          onClick={onToggleMode}
+        >
+          {themeMode === "light" ? <Sun size={"24"} /> : <Moon size={"24"} />}
+        </Fab>
+        <Navigate to="/profile" replace />
+        <Outlet />
+      </Stack>
+    </Wrapper>
+  );
 };
 
-export default Homepage;
+export default HomePage;
